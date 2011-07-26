@@ -1,8 +1,11 @@
 #ifndef __HAND_HXX__
 #define __HAND_HXX__
 
-// Written by Matt Renaud
+//===========================================================================
+// Hand class for ranking poker hands.
+// Author: Matt Renaud - mrenaud92@gmail.com
 // Assistance from Paul Preney
+//===========================================================================
 
 #include "Card.hxx"
 #include <array>
@@ -49,7 +52,8 @@ bool operator ==(Hand_Impl<T,Traits> const& lhs, Hand_Impl<T,Traits> const& rhs)
 }
 
 //===========================================================================
-
+// Traits class for Hands
+//===========================================================================
 template <unsigned ID>
 struct Hand_Traits
 {
@@ -61,10 +65,8 @@ class Hand : public Hand_Impl<Hand,Hand_Traits<1> >
 };
 
 //===========================================================================
-
-/* **************************************************
-   Pair Hand Class
-   * **************************************************/
+// Pair Hand Class
+//===========================================================================
 class Pair_Hand : public Hand_Impl<Pair_Hand,Hand_Traits<2> >
 {
   friend bool operator <(Pair_Hand const& lhs, Pair_Hand const& rhs);
@@ -126,9 +128,8 @@ std::ostream& operator << (std::ostream& os, Pair_Hand const& h)
 }
 
 //===========================================================================
-/* **************************************************
-   Two Pair Hand Class
-   * **************************************************/
+// Two Pair Hand Class
+//===========================================================================
 class Two_Pair_Hand : public Hand_Impl<Two_Pair_Hand,Hand_Traits<3> >
 {
   friend bool operator <(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs);
@@ -185,9 +186,8 @@ std::ostream& operator << (std::ostream& os, Two_Pair_Hand const& h)
 }
 
 //===========================================================================
-/* **************************************************
-   Three of a Kind Hand Class
-   * **************************************************/
+// Three of a Kind Hand Class
+//===========================================================================
 class Three_Of_A_Kind_Hand
   : public Hand_Impl<Three_Of_A_Kind_Hand,Hand_Traits<4> >
 {
@@ -241,9 +241,8 @@ std::ostream& operator << (std::ostream& os, Three_Of_A_Kind_Hand const& h)
 }
 
 //===========================================================================
-/* **************************************************
-   Straight Hand Class
-   * **************************************************/
+// Straight Hand Class
+//===========================================================================
 class Straight_Hand : public Hand_Impl<Straight_Hand,Hand_Traits<5> >
 {
   friend bool operator < (Straight_Hand const& lhs, Straight_Hand const& rhs);
@@ -285,18 +284,15 @@ bool operator == (Straight_Hand const& lhs, Straight_Hand const& rhs)
 
 
 //===========================================================================
-/* **************************************************
-   Flush Hand Class
-   * **************************************************/
+// Flush Hand Class
+//===========================================================================
 class Flush_Hand : public Hand_Impl<Flush_Hand,Hand_Traits<6> >
 {
   public:
 };
 
 //===========================================================================
-/* **************************************************
-   Full House Hand Class
-   * **************************************************/
+// Full House Hand Class
 class Full_House_Hand : public Hand_Impl<Full_House_Hand,Hand_Traits<7> >
 {
   friend bool operator < (Full_House_Hand const& lhs, Full_House_Hand const& rhs);
@@ -337,9 +333,8 @@ bool operator == (Full_House_Hand const& lhs, Full_House_Hand const& rhs)
 }
 
 //===========================================================================
-/* **************************************************
-   Four of a Kind Hand Class
-   * **************************************************/
+// Four of a Kind Hand Class
+//===========================================================================
 class Four_Of_A_Kind_Hand : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> >
 {
   friend bool operator < (Four_Of_A_Kind_Hand const& lhs, Four_Of_A_Kind_Hand const& rhs);
@@ -374,9 +369,8 @@ bool operator == (Four_Of_A_Kind_Hand const&, Four_Of_A_Kind_Hand const&)
 }
 
 //===========================================================================
-/* **************************************************
-   Straight Flush Hand Class
-   * **************************************************/
+// Straight Flush Hand Class
+//===========================================================================
 class Straight_Flush_Hand
   : public Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >
 {
@@ -386,9 +380,8 @@ class Straight_Flush_Hand
 
 
 //===========================================================================
-/* **************************************************
-   Ranked Hand using boost::variant
-   * **************************************************/
+// Ranked Hand using boost::variant
+//===========================================================================
 typedef boost::variant<
   Hand,
   Pair_Hand,
@@ -414,11 +407,14 @@ struct Ranked_Hand_Less_Than
   template <typename T, typename U>
   bool operator () (T& t, U& u) const
   {
-    //return (sizeof(t.order()) < sizeof(u.order()));
     return (sizeof(typename T::traits_type::ORDER) < sizeof(typename U::traits_type::ORDER));
   }
 };
 
+//===========================================================================
+// Visitor struct for Ranked_Hand boost::variant class
+// Compares equality of 2 ranked hands.
+//===========================================================================
 struct Ranked_Hand_Equal_To
   : public boost::static_visitor<bool>
 {
@@ -435,6 +431,9 @@ struct Ranked_Hand_Equal_To
   }
 };
 
+//===========================================================================
+// Visitor - Easy output of ranked hands.
+//===========================================================================
 struct Ranked_Hand_Ostream_Out
   : public boost::static_visitor<std::ostream&>
 {
@@ -446,11 +445,13 @@ struct Ranked_Hand_Ostream_Out
   }
 };
 
+//===========================================================================
+// Operator for comparing and outputing ranked hands.
+//===========================================================================
 inline bool operator < (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
 {
   return boost::apply_visitor(Ranked_Hand_Less_Than(), lhs, rhs);
 }
-
 
 inline bool operator == (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
 {
@@ -462,7 +463,11 @@ std::ostream& operator << (std::ostream& os, Ranked_Hand const& h)
   return boost::apply_visitor(Ranked_Hand_Ostream_Out(),os, h);
 }
 
+
+//===========================================================================
 // This works but I want to find out why it doesn't work with boost::variant.
+// Help from Bryan St. Amour.
+//===========================================================================
 /*
 inline bool compare(std::shared_ptr<Hand> lhs, std::shared_ptr<Hand> rhs)
 {

@@ -1,6 +1,11 @@
 #ifndef __CARD_HXX__
 #define __CARD_HXX__
 
+//===========================================================================
+// Card implementation for use in poker engine.
+// Author: Matt Renaud - mrenaud92@gmail.com
+//===========================================================================
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -78,4 +83,5 @@ bool operator == (spc_type const& lhs, spc_type const& rhs)
 {
   return (lhs->rank_ == rhs->rank_);
 }
-#endif
+
+#endif // __CARD_HXX__
