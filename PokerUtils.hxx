@@ -1,10 +1,54 @@
-#include <array>
+#ifndef __MRR_POKER_UTILS_HXX__
+#define __MRR_POKER_UTILS_HXX__
+
+#include <vector>
+#include <algorithm>
 
 #include "Card.hxx"
 #include "Hand.hxx"
 
+Ranked_Hand rankHand(std::vector<spc_type> hand);
 
-Ranked_Hand rankHand(std::array<spc_type, 5> hand)
+bool isFlush(std::vector<spc_type> hand);
+bool isStraight(std::vector<spc_type> hand);
+
+
+//===========================================================================
+Ranked_Hand rankHand(std::vector<spc_type> hand)
 {
-  return Straight_Hand(TEN);
+  std::sort(hand.begin(), hand.end());
+
+  /*
+  bool is_flush = isFlush(hand);
+  bool is_straight = isStraight(hand);
+
+  if(is_straight && is_flush)
+    return Straight_Flush_Hand(hand);
+
+  if(is_straight)
+    return Straight_Hand(hand);
+
+  if(is_flush)
+    return Flush_Hand(hand);
+  */
+  return Straight_Hand(hand.back()->rank_);
 }
+
+//===========================================================================
+bool isFlush(std::vector<spc_type> hand)
+{
+  Suit s = hand.front()->suit_;
+  for(unsigned i = 1; i < hand.size(); ++i)
+    if(hand[i]->suit_ != s)
+      return false;
+
+  return true;
+}
+
+//===========================================================================
+bool isStraight(std::vector<spc_type> hand)
+{
+  return true;
+}
+
+#endif // __MRR_POKER_UTILS_HXX__

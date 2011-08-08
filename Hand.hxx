@@ -5,12 +5,13 @@
 // Hand class for ranking poker hands.
 // Author: Matt Renaud - mrenaud92@gmail.com
 // Assistance from Paul Preney
-//===========================================================================
+//---------------------------------------------------------------------------
 
 #include "Card.hxx"
-#include <array>
+#include <vector>
 #include <memory>
 #include <boost/variant.hpp>
+#include <boost/optional.hpp>
 
 //===========================================================================
 
@@ -22,6 +23,7 @@ public:
 
   static const unsigned HAND_SIZE = 5;
 
+  // Default constructor.
   Hand_Impl()
   {
     int r = 0;
@@ -33,8 +35,16 @@ public:
     }
   }
 
+  // Hand vector constructor.
+  Hand_Impl(std::vector<spc_type> h) : hand_(h), high_card_(h.front()->rank_)
+  {
+  }
+
+
 protected:
-  std::array<spc_type, 5> hand_;
+  std::vector<spc_type> hand_;
+  Rank high_card_;
+
 };
 
 // Default < definition...
@@ -51,9 +61,16 @@ bool operator ==(Hand_Impl<T,Traits> const& lhs, Hand_Impl<T,Traits> const& rhs)
   return false;
 }
 
+template <typename T, typename Traits>
+std::ostream& operator << (std::ostream& os, Hand_Impl<T,Traits> const& h)
+{
+  os << "Hand Impl";
+  return os;
+}
+
 //===========================================================================
 // Traits class for Hands
-//===========================================================================
+//---------------------------------------------------------------------------
 template <unsigned ID>
 struct Hand_Traits
 {
@@ -64,10 +81,19 @@ class Hand : public Hand_Impl<Hand,Hand_Traits<1> >
 {
 };
 
+
+std::ostream& operator << (std::ostream& os, Hand const& h)
+{
+  os << "Hand";
+  return os;
+}
+
+
 //===========================================================================
 // Pair Hand Class
-//===========================================================================
-class Pair_Hand : public Hand_Impl<Pair_Hand,Hand_Traits<2> >
+//---------------------------------------------------------------------------
+class Pair_Hand
+  : public Hand_Impl<Pair_Hand,Hand_Traits<2> >
 {
   friend bool operator <(Pair_Hand const& lhs, Pair_Hand const& rhs);
   friend bool operator ==(Pair_Hand const& lhs, Pair_Hand const& rhs);
@@ -129,8 +155,9 @@ std::ostream& operator << (std::ostream& os, Pair_Hand const& h)
 
 //===========================================================================
 // Two Pair Hand Class
-//===========================================================================
-class Two_Pair_Hand : public Hand_Impl<Two_Pair_Hand,Hand_Traits<3> >
+//---------------------------------------------------------------------------
+class Two_Pair_Hand
+  : public Hand_Impl<Two_Pair_Hand,Hand_Traits<3> >
 {
   friend bool operator <(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs);
   friend bool operator ==(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs);
@@ -143,14 +170,14 @@ class Two_Pair_Hand : public Hand_Impl<Two_Pair_Hand,Hand_Traits<3> >
   spc_type low_pair_card_2_;
   Rank high_card_;
 
-  public:
+public:
   Two_Pair_Hand(spc_type hp1, spc_type hp2
 		, spc_type lp1, spc_type lp2
 		, spc_type hc)
-  : high_pair_rank_(hp1->rank_), low_pair_rank_(lp1->rank_)
-  , high_pair_card_1_(hp1), high_pair_card_2_(hp2)
-  , low_pair_card_1_(lp1), low_pair_card_2_(lp2)
-  , high_card_(hc->rank_)
+    : high_pair_rank_(hp1->rank_), low_pair_rank_(lp1->rank_)
+    , high_pair_card_1_(hp1), high_pair_card_2_(hp2)
+    , low_pair_card_1_(lp1), low_pair_card_2_(lp2)
+    , high_card_(hc->rank_)
   {
   }
 
@@ -187,7 +214,7 @@ std::ostream& operator << (std::ostream& os, Two_Pair_Hand const& h)
 
 //===========================================================================
 // Three of a Kind Hand Class
-//===========================================================================
+//---------------------------------------------------------------------------
 class Three_Of_A_Kind_Hand
   : public Hand_Impl<Three_Of_A_Kind_Hand,Hand_Traits<4> >
 {
@@ -201,12 +228,12 @@ class Three_Of_A_Kind_Hand
   Rank high_card_;
   Rank second_high_card_;
 
-  public:
+public:
   Three_Of_A_Kind_Hand(spc_type tc1, spc_type tc2, spc_type tc3
 		       , spc_type hc, spc_type shc)
-  : triple_rank_(tc1->rank_), triple_card_1_(tc1)
-  , triple_card_2_(tc2), triple_card_3_(tc3)
-  , high_card_(hc->rank_), second_high_card_(shc->rank_)
+    : triple_rank_(tc1->rank_), triple_card_1_(tc1)
+    , triple_card_2_(tc2), triple_card_3_(tc3)
+    , high_card_(hc->rank_), second_high_card_(shc->rank_)
   {
   }
 };
@@ -242,24 +269,25 @@ std::ostream& operator << (std::ostream& os, Three_Of_A_Kind_Hand const& h)
 
 //===========================================================================
 // Straight Hand Class
-//===========================================================================
-class Straight_Hand : public Hand_Impl<Straight_Hand,Hand_Traits<5> >
+//---------------------------------------------------------------------------
+class Straight_Hand
+  : public Hand_Impl<Straight_Hand,Hand_Traits<5> >
 {
   friend bool operator < (Straight_Hand const& lhs, Straight_Hand const& rhs);
   friend bool operator == (Straight_Hand const& lhs, Straight_Hand const& rhs);
 
   Rank high_card_in_straight_;
 
-  public:
+public:
   // Constructor for passing in the rank of high card in straight.
   Straight_Hand(Rank r)
-  : high_card_in_straight_(r)
+    : high_card_in_straight_(r)
   {
   }
 
   // Constructor for passing in pointer to the high card.
   Straight_Hand(spc_type hc)
-  : high_card_in_straight_(hc->rank_)
+    : high_card_in_straight_(hc->rank_)
   {
   }
 
@@ -273,27 +301,29 @@ std::ostream& operator << (std::ostream& os, Straight_Hand const& h)
 
 bool operator < (Straight_Hand const& lhs, Straight_Hand const& rhs)
 {
-  return lhs.high_card_in_straight_ < rhs.high_card_in_straight_;
+  return lhs.high_card_ < rhs.high_card_;
 }
 
 bool operator == (Straight_Hand const& lhs, Straight_Hand const& rhs)
 {
-  return lhs.high_card_in_straight_ == rhs.high_card_in_straight_;
+  return lhs.high_card_ == rhs.high_card_;
 }
 
 
 
 //===========================================================================
 // Flush Hand Class
-//===========================================================================
-class Flush_Hand : public Hand_Impl<Flush_Hand,Hand_Traits<6> >
+//---------------------------------------------------------------------------
+class Flush_Hand
+  : public Hand_Impl<Flush_Hand,Hand_Traits<6> >
 {
-  public:
+public:
 };
 
 //===========================================================================
 // Full House Hand Class
-class Full_House_Hand : public Hand_Impl<Full_House_Hand,Hand_Traits<7> >
+class Full_House_Hand
+  : public Hand_Impl<Full_House_Hand,Hand_Traits<7> >
 {
   friend bool operator < (Full_House_Hand const& lhs, Full_House_Hand const& rhs);
   friend bool operator == (Full_House_Hand const& lhs, Full_House_Hand const& rhs);
@@ -301,16 +331,16 @@ class Full_House_Hand : public Hand_Impl<Full_House_Hand,Hand_Traits<7> >
   Rank triple_rank_;
   Rank pair_rank_;
 
-  public:
+public:
   // Constructor for passing in two ranks.
   Full_House_Hand(Rank tr, Rank pr)
-  : triple_rank_(tr), pair_rank_(pr)
+    : triple_rank_(tr), pair_rank_(pr)
   {
   }
 
   // Constructor for passing in two shared pointers to cards.
   Full_House_Hand(spc_type tc, spc_type pc)
-  : triple_rank_(tc->rank_), pair_rank_(pc->rank_)
+    : triple_rank_(tc->rank_), pair_rank_(pc->rank_)
   {
   }
 };
@@ -332,9 +362,15 @@ bool operator == (Full_House_Hand const& lhs, Full_House_Hand const& rhs)
   return false;
 }
 
+std::ostream& operator << (std::ostream& os, Full_House_Hand const& h)
+{
+  os << "Full house";
+  return os;
+}
+
 //===========================================================================
 // Four of a Kind Hand Class
-//===========================================================================
+//---------------------------------------------------------------------------
 class Four_Of_A_Kind_Hand : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> >
 {
   friend bool operator < (Four_Of_A_Kind_Hand const& lhs, Four_Of_A_Kind_Hand const& rhs);
@@ -347,12 +383,12 @@ class Four_Of_A_Kind_Hand : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> 
   spc_type quad_card_4_;
   Rank high_card_;
 
-  public:
+public:
   Four_Of_A_Kind_Hand(Rank r, spc_type qc1, spc_type qc2
 		      , spc_type qc3, spc_type qc4, spc_type hc)
-  : quad_rank_(r), quad_card_1_(qc1), quad_card_2_(qc2)
-  , quad_card_3_(qc3), quad_card_4_(qc4)
-  , high_card_(hc->rank_)
+    : quad_rank_(r), quad_card_1_(qc1), quad_card_2_(qc2)
+    , quad_card_3_(qc3), quad_card_4_(qc4)
+    , high_card_(hc->rank_)
   {
   }
 
@@ -368,20 +404,40 @@ bool operator == (Four_Of_A_Kind_Hand const&, Four_Of_A_Kind_Hand const&)
   return false;
 }
 
+std::ostream& operator << (std::ostream& os, Four_Of_A_Kind_Hand const& h)
+{
+  os << "Four of a kind";
+  return os;
+}
+
 //===========================================================================
 // Straight Flush Hand Class
-//===========================================================================
+//---------------------------------------------------------------------------
 class Straight_Flush_Hand
   : public Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >
 {
+  friend bool operator < (Straight_Flush_Hand const& lhs,
+			  Straight_Flush_Hand const& rhs);
+  friend bool operator == (Straight_Flush_Hand const& lhs,
+			   Straight_Flush_Hand const& rhs);
 };
 
-// Use default < and ==.
+
+bool operator < (Straight_Flush_Hand const& lhs, Straight_Flush_Hand const& rhs)
+{
+  return lhs.high_card_ < rhs.high_card_;
+}
+
+bool operator == (Straight_Flush_Hand const& lhs, Straight_Flush_Hand const& rhs)
+{
+  return lhs.high_card_ == rhs.high_card_;
+}
+
 
 
 //===========================================================================
 // Ranked Hand using boost::variant
-//===========================================================================
+//---------------------------------------------------------------------------
 typedef boost::variant<
   Hand,
   Pair_Hand,
@@ -414,7 +470,7 @@ struct Ranked_Hand_Less_Than
 //===========================================================================
 // Visitor struct for Ranked_Hand boost::variant class
 // Compares equality of 2 ranked hands.
-//===========================================================================
+//---------------------------------------------------------------------------
 struct Ranked_Hand_Equal_To
   : public boost::static_visitor<bool>
 {
@@ -433,21 +489,28 @@ struct Ranked_Hand_Equal_To
 
 //===========================================================================
 // Visitor - Easy output of ranked hands.
-//===========================================================================
+//---------------------------------------------------------------------------
+
 struct Ranked_Hand_Ostream_Out
   : public boost::static_visitor<std::ostream&>
 {
+  Ranked_Hand_Ostream_Out(std::ostream& os)
+    : os_(os) { }
+
   template <typename T>
-  std::ostream& operator () (std::ostream& os, T const& h)
+  std::ostream& operator () (T const& h) const
   {
-    os << h;
-    return os;
+    os_ << h;
+    return os_;
   }
+
+private:
+  std::ostream& os_;
 };
 
 //===========================================================================
 // Operator for comparing and outputing ranked hands.
-//===========================================================================
+//---------------------------------------------------------------------------
 inline bool operator < (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
 {
   return boost::apply_visitor(Ranked_Hand_Less_Than(), lhs, rhs);
@@ -460,23 +523,23 @@ inline bool operator == (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
 
 std::ostream& operator << (std::ostream& os, Ranked_Hand const& h)
 {
-  return boost::apply_visitor(Ranked_Hand_Ostream_Out(),os, h);
+  return boost::apply_visitor(Ranked_Hand_Ostream_Out(os), h);
 }
 
 
 //===========================================================================
 // This works but I want to find out why it doesn't work with boost::variant.
 // Help from Bryan St. Amour.
-//===========================================================================
+//---------------------------------------------------------------------------
 /*
-inline bool compare(std::shared_ptr<Hand> lhs, std::shared_ptr<Hand> rhs)
-{
+  inline bool compare(std::shared_ptr<Hand> lhs, std::shared_ptr<Hand> rhs)
+  {
   if(sizeof(typename T::traits_type::ORDER) < sizeof(U::traits_type::ORDER))
-    return true;
+  return true;
   else if(sizeof(typename T::traits_type::ORDER) == sizeof(U::traits_type::ORDER))
-    return lhs < rhs;
+  return lhs < rhs;
   else
-    return false;
-}
+  return false;
+  }
 */
 #endif

@@ -26,49 +26,59 @@ private:
 public:
   Rank rank_;
   Suit suit_;
-  Card() { }
+  Card() : rank_(KING), suit_(JOKER){ }
+  Card(Card const& c) : rank_(c.rank_), suit_(c.suit_) { }
   Card(Rank r, Suit s) : rank_(r), suit_(s)
   {
     suit2string =
     {
-      {SPADES, "spades"},
-      {HEARTS, "hearts"},
+      {SPADES,   "spades"  },
+      {HEARTS,   "hearts"  },
       {DIAMONDS, "diamonds"},
-      {CLUBS, "clubs"}
+      {CLUBS,    "clubs"   }
     };
     rank2string =
     {
-      {ACE, "ace"},
-      {TWO, "two"},
+      {ACE,   "ace"  },
+      {TWO,   "two"  },
       {THREE, "three"},
-      {FOUR, "four"},
-      {FIVE, "five"},
-      {SIX, "six"},
+      {FOUR,  "four" },
+      {FIVE,  "five" },
+      {SIX,   "six"  },
       {SEVEN, "seven"},
       {EIGHT, "eight"},
-      {NINE,  "nine"},
-      {TEN, "ten"},
-      {JACK, "jack"},
+      {NINE,  "nine" },
+      {TEN,   "ten"  },
+      {JACK,  "jack" },
       {QUEEN, "queen"},
-      {KING, "king"}
+      {KING,  "king" }
     };
   }
 
-  void showCard()
+  Card& operator = (Card const& c)
+  {
+    rank_ = c.rank_;
+    suit_ = c.suit_;
+    return *this;
+  }
+
+  std::ostream& showCard(std::ostream& os) const
   {
     auto r = rank2string.find(rank_);
     if (r == rank2string.end())
-      return;
+      return os;
 
     auto s = suit2string.find(suit_);
     if (s == suit2string.end())
-      return;
+      return os;
 
-    std::cout
+    os
     << r->second
     << " of "
     << s->second
     ;
+
+    return os;
   }
 };
 
@@ -82,6 +92,12 @@ bool operator < (spc_type const& lhs, spc_type const& rhs)
 bool operator == (spc_type const& lhs, spc_type const& rhs)
 {
   return (lhs->rank_ == rhs->rank_);
+}
+
+std::ostream& operator << (std::ostream& os, spc_type const& c)
+{
+  c->showCard(os);
+  return os;
 }
 
 #endif // __CARD_HXX__
