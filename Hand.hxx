@@ -460,6 +460,12 @@ bool operator == (Straight_Flush_Hand const& lhs, Straight_Flush_Hand const& rhs
   return lhs.high_card_ == rhs.high_card_;
 }
 
+std::ostream& operator << (std::ostream& os, Straight_Flush_Hand const& rhs)
+{
+  os << "Straight flush" << std::endl;
+  return os;
+}
+
 
 
 //===========================================================================
