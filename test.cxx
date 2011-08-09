@@ -44,6 +44,7 @@ int main()
 
    std::cout << (rh1 == rh1) << std::endl;
    std::cout << (rh1 == rh2) << std::endl;
+   std::cout << (rh1 < rh1) << std::endl;
    std::cout << (rh2 < rh1) << std::endl;
    std::cout << (rh1 < rh2) << std::endl;
 
