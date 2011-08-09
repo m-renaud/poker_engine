@@ -23,7 +23,6 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
 
   if(is_straight && is_flush)
   {
-    std::cout << "Straight flush!" << std::endl;
     return Straight_Flush_Hand(hand.back());
   }
 

@@ -4,7 +4,7 @@
 //===========================================================================
 // Hand class for representing and ranking poker hands.
 // Author: Matt Renaud - mrenaud92@gmail.com
-// Assistance from Paul Preney
+// Assistance from Paul Preney and Bryan St. Amour
 //---------------------------------------------------------------------------
 
 #include "Card.hxx"
@@ -23,18 +23,24 @@ public:
 
   static const unsigned HAND_SIZE = 5;
 
+  friend std::ostream& operator << (std::ostream& os, T const& t)
+  {
+    return t.write_impl(os);
+  }
+
+  friend bool operator < (T const& lhs, T const& rhs)
+  {
+    return lhs.less_than_impl(rhs);
+  }
+
+  friend bool operator == (T const& lhs, T const& rhs)
+  {
+    return lhs.equal_impl(rhs);
+  }
+
   // Default constructor.
   explicit Hand_Impl()
   {
-    hand_.resize(HAND_SIZE);
-    std::cout << "In default H_I constructor" << std::endl;
-    int r = 0;
-    int s = 1;
-
-    for(int c = 0; c < HAND_SIZE; ++c)
-    {
-      hand_[c] = spc_type (new Card(Rank(r++), Suit(s)));
-    }
   }
 
   // Hand vector constructor.
@@ -47,26 +53,7 @@ public:
   Rank high_card_;
 };
 
-// Default < definition...
-template <typename T, typename Traits>
-bool operator <(Hand_Impl<T,Traits> const& lhs, Hand_Impl<T,Traits> const& rhs)
-{
-  return false;
-}
 
-// Default == definition...
-template <typename T, typename Traits>
-bool operator ==(Hand_Impl<T,Traits> const& lhs, Hand_Impl<T,Traits> const& rhs)
-{
-  return false;
-}
-
-template <typename T, typename Traits>
-std::ostream& operator << (std::ostream& os, Hand_Impl<T,Traits> const& h)
-{
-  os << "Hand Impl";
-  return os;
-}
 
 
 //===========================================================================
@@ -78,16 +65,30 @@ struct Hand_Traits
   typedef char ORDER[ID];
 };
 
-class Hand : public Hand_Impl<Hand,Hand_Traits<1> >
+class Hand
+  : public Hand_Impl<Hand,Hand_Traits<1> >
 {
+public:
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Hand";
+    return os;
+  }
+
+  bool less_than_impl(Hand const& rhs) const
+  {
+    return false;
+  }
+
+  bool equal_impl(Hand const& rhs) const
+  {
+    return false;
+  }
 };
 
 
-std::ostream& operator << (std::ostream& os, Hand const& h)
-{
-  os << "Hand";
-  return os;
-}
+
+
 
 
 //===========================================================================
@@ -96,8 +97,47 @@ std::ostream& operator << (std::ostream& os, Hand const& h)
 class Pair_Hand
   : public Hand_Impl<Pair_Hand,Hand_Traits<2> >
 {
-  friend bool operator <(Pair_Hand const& lhs, Pair_Hand const& rhs);
-  friend bool operator ==(Pair_Hand const& lhs, Pair_Hand const& rhs);
+
+
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Pair Hand";
+    return os;
+  }
+
+  bool less_than_impl(Pair_Hand const& rhs) const
+  {
+    if(pair_rank_ < rhs.pair_rank_)
+      return true;
+    else if(pair_rank_ > rhs.pair_rank_)
+      return false;
+    else if(high_card_ < rhs.high_card_)
+      return true;
+    else if(high_card_ > rhs.high_card_)
+      return false;
+    else if(second_high_card_ < rhs.second_high_card_)
+      return true;
+    else if(second_high_card_ > rhs.second_high_card_)
+      return true;
+    else if(third_high_card_ < rhs.third_high_card_)
+      return true;
+    else
+      return false;
+
+  }
+
+  bool equal_impl(Pair_Hand const& rhs) const
+  {
+    return (
+      (pair_rank_ == rhs.pair_rank_) &&
+      (high_card_ == rhs.high_card_) &&
+      (second_high_card_ == rhs.second_high_card_) &&
+      (third_high_card_ == rhs.third_high_card_ )
+    );
+  }
 
   Rank pair_rank_;
   spc_type pair_card_1_;
@@ -116,43 +156,7 @@ public:
   }
 };
 
-// Put in .cxx file later...
-bool operator <(Pair_Hand const& lhs, Pair_Hand const& rhs)
-{
-  if(lhs.pair_rank_ < rhs.pair_rank_)
-    return true;
-  else if(lhs.pair_rank_ > rhs.pair_rank_)
-    return false;
-  else if(lhs.high_card_ < rhs.high_card_)
-    return true;
-  else if(lhs.high_card_ > rhs.high_card_)
-    return false;
-  else if(lhs.second_high_card_ < rhs.second_high_card_)
-    return true;
-  else if(lhs.second_high_card_ > rhs.second_high_card_)
-    return true;
-  else if(lhs.third_high_card_ < rhs.third_high_card_)
-    return true;
-  else
-    return false;
-}
 
-// Put in .cxx file later...
-bool operator ==(Pair_Hand const& lhs, Pair_Hand const& rhs)
-{
-  return (
-    (lhs.pair_rank_ == rhs.pair_rank_) &&
-    (lhs.high_card_ == rhs.high_card_) &&
-    (lhs.second_high_card_ == rhs.second_high_card_) &&
-    (lhs.third_high_card_ == rhs.third_high_card_ )
-  );
-}
-
-std::ostream& operator << (std::ostream& os, Pair_Hand const& h)
-{
-  os << "Pair Hand";
-  return os;
-}
 
 //===========================================================================
 // Two Pair Hand Class
@@ -160,8 +164,37 @@ std::ostream& operator << (std::ostream& os, Pair_Hand const& h)
 class Two_Pair_Hand
   : public Hand_Impl<Two_Pair_Hand,Hand_Traits<3> >
 {
-  friend bool operator <(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs);
-  friend bool operator ==(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs);
+
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Two Pair Hand";
+    return os;
+  }
+
+  bool less_than_impl(Two_Pair_Hand const& rhs) const
+  {
+    if(high_pair_rank_ < rhs.high_pair_rank_)
+      return true;
+    else if (high_pair_rank_ > rhs.high_pair_rank_)
+      return false;
+    else if(low_pair_rank_ < rhs.low_pair_rank_)
+      return true;
+    else
+      return false;
+  }
+
+  bool equal_impl(Two_Pair_Hand const& rhs) const
+  {
+    return (
+      (high_pair_rank_ == rhs.high_pair_rank_) &&
+      (low_pair_rank_ == rhs.low_pair_rank_) &&
+      (high_card_ == rhs.high_card_)
+    );
+  }
+
 
   Rank high_pair_rank_;
   Rank low_pair_rank_;
@@ -184,34 +217,7 @@ public:
 
 };
 
-// Put in .cxx file later...
-bool operator <(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs)
-{
-  if(lhs.high_pair_rank_ < rhs.high_pair_rank_)
-    return true;
-  else if (lhs.high_pair_rank_ > rhs.high_pair_rank_)
-    return false;
-  else if(lhs.low_pair_rank_ < rhs.low_pair_rank_)
-    return true;
-  else
-    return false;
-}
 
-// Put in .cxx file later...
-bool operator ==(Two_Pair_Hand const& lhs, Two_Pair_Hand const& rhs)
-{
-  return (
-    (lhs.high_pair_rank_ == rhs.high_pair_rank_) &&
-    (lhs.low_pair_rank_ == rhs.low_pair_rank_) &&
-    (lhs.high_card_ == rhs.high_card_)
-  );
-}
-
-std::ostream& operator << (std::ostream& os, Two_Pair_Hand const& h)
-{
-  os << "Two Pair Hand";
-  return os;
-}
 
 //===========================================================================
 // Three of a Kind Hand Class
@@ -219,8 +225,37 @@ std::ostream& operator << (std::ostream& os, Two_Pair_Hand const& h)
 class Three_Of_A_Kind_Hand
   : public Hand_Impl<Three_Of_A_Kind_Hand,Hand_Traits<4> >
 {
-  friend bool operator < (Three_Of_A_Kind_Hand const& lhs, Three_Of_A_Kind_Hand const& rhs);
-  friend bool operator == (Three_Of_A_Kind_Hand const& lhs, Three_Of_A_Kind_Hand const& rhs);
+
+
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Three of a Kind Hand";
+    return os;
+  }
+
+  bool less_than_impl(Three_Of_A_Kind_Hand const& rhs) const
+  {
+    if(triple_rank_ < rhs.triple_rank_)
+      return true;
+    else if(triple_rank_ > rhs.triple_rank_)
+      return false;
+    else if(high_card_ < rhs.high_card_)
+      return true;
+    else if(high_card_ > rhs.high_card_)
+      return false;
+    else if(second_high_card_ < rhs.second_high_card_)
+      return true;
+    else
+      return false;
+  }
+
+  bool equal_impl(Three_Of_A_Kind_Hand const& rhs) const
+  {
+    return false;
+  }
 
   Rank triple_rank_;
   spc_type triple_card_1_;
@@ -239,34 +274,6 @@ public:
   }
 };
 
-// Put in .cxx file later...
-bool operator < (Three_Of_A_Kind_Hand const& lhs, Three_Of_A_Kind_Hand const& rhs)
-{
-  if(lhs.triple_rank_ < rhs.triple_rank_)
-    return true;
-  else if(lhs.triple_rank_ > rhs.triple_rank_)
-    return false;
-  else if(lhs.high_card_ < rhs.high_card_)
-    return true;
-  else if(lhs.high_card_ > rhs.high_card_)
-    return false;
-  else if(lhs.second_high_card_ < rhs.second_high_card_)
-    return true;
-  else
-    return false;
-}
-
-// Put in .cxx file later...
-bool operator == (Three_Of_A_Kind_Hand const& lhs, Three_Of_A_Kind_Hand const& rhs)
-{
-  return false;
-}
-
-std::ostream& operator << (std::ostream& os, Three_Of_A_Kind_Hand const& h)
-{
-  os << "Three of a kind";
-  return os;
-}
 
 //===========================================================================
 // Straight Hand Class
@@ -274,8 +281,25 @@ std::ostream& operator << (std::ostream& os, Three_Of_A_Kind_Hand const& h)
 class Straight_Hand
   : public Hand_Impl<Straight_Hand,Hand_Traits<5> >
 {
-  friend bool operator < (Straight_Hand const& lhs, Straight_Hand const& rhs);
-  friend bool operator == (Straight_Hand const& lhs, Straight_Hand const& rhs);
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Straight Hand";
+    return os;
+  }
+
+  bool less_than_impl(Straight_Hand const& rhs) const
+  {
+    return high_card_ < rhs.high_card_;
+  }
+
+  bool equal_impl(Straight_Hand const& rhs) const
+  {
+    return high_card_ == rhs.high_card_;
+  }
+
 
   Rank high_card_in_straight_;
 
@@ -300,21 +324,7 @@ public:
 
 };
 
-std::ostream& operator << (std::ostream& os, Straight_Hand const& h)
-{
-  os << "Straight";
-  return os;
-}
 
-bool operator < (Straight_Hand const& lhs, Straight_Hand const& rhs)
-{
-  return lhs.high_card_ < rhs.high_card_;
-}
-
-bool operator == (Straight_Hand const& lhs, Straight_Hand const& rhs)
-{
-  return lhs.high_card_ == rhs.high_card_;
-}
 
 
 
@@ -326,6 +336,25 @@ class Flush_Hand
 {
 public:
 
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Flush Hand";
+    return os;
+  }
+
+  bool less_than_impl(Flush_Hand const& rhs) const
+  {
+    return false;
+  }
+
+  bool equal_impl(Flush_Hand const& rhs) const
+  {
+    return false;
+  }
+
+public:
+
   Flush_Hand(std::vector<spc_type> const& h) { }
 };
 
@@ -334,9 +363,25 @@ public:
 class Full_House_Hand
   : public Hand_Impl<Full_House_Hand,Hand_Traits<7> >
 {
-  friend bool operator < (Full_House_Hand const& lhs, Full_House_Hand const& rhs);
-  friend bool operator == (Full_House_Hand const& lhs, Full_House_Hand const& rhs);
 
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Full House Hand";
+    return os;
+  }
+
+  bool less_than_impl(Full_House_Hand const& rhs) const
+  {
+    return false;
+  }
+
+  bool equal_impl(Full_House_Hand const& rhs) const
+  {
+    return false;
+  }
   Rank triple_rank_;
   Rank pair_rank_;
 
@@ -354,36 +399,34 @@ public:
   }
 };
 
-bool operator < (Full_House_Hand const& lhs, Full_House_Hand const& rhs)
-{
-  if(lhs.triple_rank_ < rhs.triple_rank_)
-    return true;
-  else if(lhs.triple_rank_ > rhs.triple_rank_)
-    return false;
-  else if(lhs.pair_rank_ < rhs.pair_rank_)
-    return true;
-  else
-    return false;
-}
-
-bool operator == (Full_House_Hand const& lhs, Full_House_Hand const& rhs)
-{
-  return false;
-}
-
-std::ostream& operator << (std::ostream& os, Full_House_Hand const& h)
-{
-  os << "Full house";
-  return os;
-}
 
 //===========================================================================
 // Four of a Kind Hand Class
 //---------------------------------------------------------------------------
 class Four_Of_A_Kind_Hand : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> >
 {
-  friend bool operator < (Four_Of_A_Kind_Hand const& lhs, Four_Of_A_Kind_Hand const& rhs);
-  friend bool operator == (Four_Of_A_Kind_Hand const& lhs, Four_Of_A_Kind_Hand const& rhs);
+
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Four of a Kind Hand";
+    return os;
+  }
+
+  bool less_than_impl(Four_Of_A_Kind_Hand const& rhs) const
+  {
+    return false;
+  }
+
+  bool equal_impl(Four_Of_A_Kind_Hand const& rhs) const
+  {
+    return false;
+  }
+  Rank triple_rank_;
+  Rank pair_rank_;
+
 
   Rank quad_rank_;
   spc_type quad_card_1_;
@@ -403,21 +446,6 @@ public:
 
 };
 
-bool operator < (Four_Of_A_Kind_Hand const& lhs, Four_Of_A_Kind_Hand const& rhs)
-{
-  return lhs.quad_rank_ < rhs.quad_rank_;
-}
-
-bool operator == (Four_Of_A_Kind_Hand const&, Four_Of_A_Kind_Hand const&)
-{
-  return false;
-}
-
-std::ostream& operator << (std::ostream& os, Four_Of_A_Kind_Hand const& h)
-{
-  os << "Four of a kind";
-  return os;
-}
 
 //===========================================================================
 // Straight Flush Hand Class
@@ -425,46 +453,42 @@ std::ostream& operator << (std::ostream& os, Four_Of_A_Kind_Hand const& h)
 class Straight_Flush_Hand
   : public Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >
 {
-  friend bool operator < (Straight_Flush_Hand const& lhs,
-			  Straight_Flush_Hand const& rhs);
-  friend bool operator == (Straight_Flush_Hand const& lhs,
-			   Straight_Flush_Hand const& rhs);
 
-  Rank high_card_;
 
+//  Rank high_card_;
+public:
+
+  // Barton-Nackmann
+  std::ostream& write_impl(std::ostream& os) const
+  {
+    os << "Straight Flush Hand";
+    return os;
+  }
+
+  bool less_than_impl(Straight_Flush_Hand const& rhs) const
+  {
+    return high_card_ < rhs.high_card_;
+  }
+
+  bool equal_impl(Straight_Flush_Hand const& rhs) const
+  {
+    return high_card_ == rhs.high_card_;
+  }
 public:
   explicit Straight_Flush_Hand(spc_type const& c)
-    : high_card_(c->rank_)
   {
-    std::cout << "In SF contsructor for spc_type" << std::endl;
-//    Hand_Impl<Straight_Flush_Hand, Hand_Traits<9> >::high_card_ = c->rank_;
+    Hand_Impl<Straight_Flush_Hand, Hand_Traits<9> >::high_card_ = c->rank_;
   }
 
 
   explicit Straight_Flush_Hand(std::vector<spc_type> const& h) // PAUL
   {
-    std::cout << "In SF constructor" << std::endl;
     Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >::hand_ = h;
     Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >::high_card_ = h.back()->rank_;
   }
 };
 
 
-bool operator < (Straight_Flush_Hand const& lhs, Straight_Flush_Hand const& rhs)
-{
-  return lhs.high_card_ < rhs.high_card_;
-}
-
-bool operator == (Straight_Flush_Hand const& lhs, Straight_Flush_Hand const& rhs)
-{
-  return lhs.high_card_ == rhs.high_card_;
-}
-
-std::ostream& operator << (std::ostream& os, Straight_Flush_Hand const& rhs)
-{
-  os << "Straight flush" << std::endl;
-  return os;
-}
 
 
 
@@ -544,20 +568,25 @@ private:
 //===========================================================================
 // Operator for comparing and outputing ranked hands.
 //---------------------------------------------------------------------------
+/*
 inline bool operator < (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
 {
   return boost::apply_visitor(Ranked_Hand_Less_Than(), lhs, rhs);
 }
+*/
 
+/*
 inline bool operator == (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
 {
   return boost::apply_visitor(Ranked_Hand_Equal_To(), lhs, rhs);
 }
-
+*/
+ /*
 std::ostream& operator << (std::ostream& os, Ranked_Hand const& h)
 {
   return boost::apply_visitor(Ranked_Hand_Ostream_Out(os), h);
 }
+ */
 
 
 //===========================================================================
