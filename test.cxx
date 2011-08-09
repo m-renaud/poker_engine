@@ -30,14 +30,14 @@ int main()
       , c_9(new Card(Rank(9), Suit(3)))
       ;
 
-   std::vector<spc_type> h1{h_7,h_5,c_5,d_9,s_6};
+   std::vector<spc_type> h1{h_7,h_5,h_6,h_9,h_8};
    for_each(h1.begin(), h1.end(), [](spc_type c) { std::cout << c << std::endl; } );
    std::cout << "==================================================" << std::endl;
    std::sort(h1.begin(), h1.end());
    for_each(h1.begin(), h1.end(), [](spc_type c) { std::cout << c << std::endl; } );
 
    Ranked_Hand rh1 = rankHand(h1);
-//   std::cout << rh1 << std::endl;
+   std::cout << rh1 << std::endl;
 
 /*
    std::shared_ptr<Pair_Hand> p1(new Pair_Hand(h_5, d_5, c_9, c_8, c_6));

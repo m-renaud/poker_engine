@@ -1,8 +1,8 @@
-#ifndef __HAND_HXX__
-#define __HAND_HXX__
+#ifndef __MRR_HAND_HXX__
+#define __MRR_HAND_HXX__
 
 //===========================================================================
-// Hand class for ranking poker hands.
+// Hand class for representing and ranking poker hands.
 // Author: Matt Renaud - mrenaud92@gmail.com
 // Assistance from Paul Preney
 //---------------------------------------------------------------------------
@@ -24,8 +24,10 @@ public:
   static const unsigned HAND_SIZE = 5;
 
   // Default constructor.
-  Hand_Impl()
+  explicit Hand_Impl()
   {
+    hand_.resize(HAND_SIZE);
+    std::cout << "In default H_I constructor" << std::endl;
     int r = 0;
     int s = 1;
 
@@ -36,15 +38,13 @@ public:
   }
 
   // Hand vector constructor.
-  Hand_Impl(std::vector<spc_type> h) : hand_(h), high_card_(h.front()->rank_)
+  explicit Hand_Impl(std::vector<spc_type> const& h)
+    : hand_(h), high_card_(h.front()->rank_)
   {
   }
 
-
-protected:
   std::vector<spc_type> hand_;
   Rank high_card_;
-
 };
 
 // Default < definition...
@@ -67,6 +67,7 @@ std::ostream& operator << (std::ostream& os, Hand_Impl<T,Traits> const& h)
   os << "Hand Impl";
   return os;
 }
+
 
 //===========================================================================
 // Traits class for Hands
@@ -291,6 +292,12 @@ public:
   {
   }
 
+  Straight_Hand(std::vector<spc_type> const& h)
+    : high_card_in_straight_(h.back()->rank_)
+  {
+    Hand_Impl<Straight_Hand, Hand_Traits<5> >::hand_ = h;
+  }
+
 };
 
 std::ostream& operator << (std::ostream& os, Straight_Hand const& h)
@@ -318,6 +325,8 @@ class Flush_Hand
   : public Hand_Impl<Flush_Hand,Hand_Traits<6> >
 {
 public:
+
+  Flush_Hand(std::vector<spc_type> const& h) { }
 };
 
 //===========================================================================
@@ -420,6 +429,24 @@ class Straight_Flush_Hand
 			  Straight_Flush_Hand const& rhs);
   friend bool operator == (Straight_Flush_Hand const& lhs,
 			   Straight_Flush_Hand const& rhs);
+
+  Rank high_card_;
+
+public:
+  explicit Straight_Flush_Hand(spc_type const& c)
+    : high_card_(c->rank_)
+  {
+    std::cout << "In SF contsructor for spc_type" << std::endl;
+//    Hand_Impl<Straight_Flush_Hand, Hand_Traits<9> >::high_card_ = c->rank_;
+  }
+
+
+  explicit Straight_Flush_Hand(std::vector<spc_type> const& h) // PAUL
+  {
+    std::cout << "In SF constructor" << std::endl;
+    Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >::hand_ = h;
+    Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >::high_card_ = h.back()->rank_;
+  }
 };
 
 

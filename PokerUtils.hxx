@@ -18,19 +18,21 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
 {
   std::sort(hand.begin(), hand.end());
 
-  /*
   bool is_flush = isFlush(hand);
   bool is_straight = isStraight(hand);
 
   if(is_straight && is_flush)
-    return Straight_Flush_Hand(hand);
+  {
+    std::cout << "Straight flush!" << std::endl;
+    return Straight_Flush_Hand(hand.back());
+  }
 
   if(is_straight)
-    return Straight_Hand(hand);
+    return Straight_Hand(hand.back());
 
   if(is_flush)
     return Flush_Hand(hand);
-  */
+
   return Straight_Hand(hand.back()->rank_);
 }
 
@@ -48,6 +50,13 @@ bool isFlush(std::vector<spc_type> hand)
 //===========================================================================
 bool isStraight(std::vector<spc_type> hand)
 {
+  int r = static_cast<int>(hand.front()->rank_);
+  for(int i = 1; i < hand.size(); ++i)
+  {
+    if(hand[i]->rank_ != (r + 1))
+      return false;
+    ++r;
+  }
   return true;
 }
 

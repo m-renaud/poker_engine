@@ -1,5 +1,5 @@
-#ifndef __CARD_HXX__
-#define __CARD_HXX__
+#ifndef __MRR_CARD_HXX__
+#define __MRR_CARD_HXX__
 
 //===========================================================================
 // Card implementation for use in poker engine.
@@ -100,4 +100,4 @@ std::ostream& operator << (std::ostream& os, spc_type const& c)
   return os;
 }
 
-#endif // __CARD_HXX__
+#endif // __MRR_CARD_HXX__
