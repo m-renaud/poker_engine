@@ -1,0 +1,2 @@
+Here is a poker engine I am implementing in C++.
+I am using this as a learning excercise for high level programming concepts such as CRTP, traits, SFINAE and boost::variant.
