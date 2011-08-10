@@ -384,17 +384,16 @@ public:
 //===========================================================================
 // Four of a Kind Hand Class
 //---------------------------------------------------------------------------
-class Four_Of_A_Kind_Hand : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> >
+class Four_Of_A_Kind_Hand
+  : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> >
 {
   Rank quad_rank_;
 
 public:
-  Four_Of_A_Kind_Hand(Rank r, spc_type qc1, spc_type qc2
-		      , spc_type qc3, spc_type qc4, spc_type hc)
-    : quad_rank_(r), quad_card_1_(qc1), quad_card_2_(qc2)
-    , quad_card_3_(qc3), quad_card_4_(qc4)
-    , high_card_(hc->rank_)
+  Four_Of_A_Kind_Hand(spc_type const& q, spc_type const& h)
+    : quad_rank_(q->rank_)
   {
+    Hand_Impl<Four_Of_A_Kind_Hand, Hand_Traits<8> >::high_card_ = h->rank_;
   }
 
   // Barton-Nackmann
@@ -472,101 +471,4 @@ typedef boost::variant<
   Straight_Flush_Hand
   > Ranked_Hand;
 
-
-struct Ranked_Hand_Less_Than
-  : public boost::static_visitor<bool>
-{
-  template <typename T>
-  bool operator () (T& t1, T& t2) const
-  {
-    return t1 < t2;
-  }
-
-  template <typename T, typename U>
-  bool operator () (T& t, U& u) const
-  {
-    return (sizeof(typename T::traits_type::ORDER) < sizeof(typename U::traits_type::ORDER));
-  }
-};
-
-//===========================================================================
-// Visitor struct for Ranked_Hand boost::variant class
-// Compares equality of 2 ranked hands.
-//---------------------------------------------------------------------------
-struct Ranked_Hand_Equal_To
-  : public boost::static_visitor<bool>
-{
-  template <typename T>
-  bool operator () (T& t1, T& t2) const
-  {
-    return t1 == t2;
-  }
-
-  template <typename T, typename U>
-  bool operator () (T& t, U& u) const
-  {
-    return false;
-  }
-};
-
-//===========================================================================
-// Visitor - Easy output of ranked hands.
-//---------------------------------------------------------------------------
-
-struct Ranked_Hand_Ostream_Out
-  : public boost::static_visitor<std::ostream&>
-{
-  Ranked_Hand_Ostream_Out(std::ostream& os)
-    : os_(os) { }
-
-  template <typename T>
-  std::ostream& operator () (T const& h) const
-  {
-    os_ << h;
-    return os_;
-  }
-
-private:
-  std::ostream& os_;
-};
-
-//===========================================================================
-// Operator for comparing and outputing ranked hands.
-//---------------------------------------------------------------------------
-/*
-inline bool operator < (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
-{
-  return boost::apply_visitor(Ranked_Hand_Less_Than(), lhs, rhs);
-}
-*/
-
-/*
-inline bool operator == (Ranked_Hand const& lhs, Ranked_Hand const& rhs)
-{
-  return boost::apply_visitor(Ranked_Hand_Equal_To(), lhs, rhs);
-}
-*/
- /*
-std::ostream& operator << (std::ostream& os, Ranked_Hand const& h)
-{
-  return boost::apply_visitor(Ranked_Hand_Ostream_Out(os), h);
-}
- */
-
-
-//===========================================================================
-// This works but I want to find out why it doesn't work with boost::variant.
-// Help from Bryan St. Amour.
-//---------------------------------------------------------------------------
-/*
-  inline bool compare(std::shared_ptr<Hand> lhs, std::shared_ptr<Hand> rhs)
-  {
-  if(sizeof(typename T::traits_type::ORDER) < sizeof(U::traits_type::ORDER))
-  return true;
-  else if(sizeof(typename T::traits_type::ORDER) == sizeof(U::traits_type::ORDER))
-  return lhs < rhs;
-  else
-  return false;
-  }
-*/
 #endif
