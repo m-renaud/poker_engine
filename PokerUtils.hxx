@@ -32,7 +32,7 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
   if(is_flush)
     return Flush_Hand(hand);
 
-  return Straight_Hand(hand.back()->rank_);
+  return Straight_Hand(hand.back());
 }
 
 //===========================================================================
