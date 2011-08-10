@@ -9,12 +9,10 @@
 
 #include "Card.hxx"
 #include <vector>
-#include <memory>
 #include <boost/variant.hpp>
 #include <boost/optional.hpp>
 
 //===========================================================================
-
 template <typename T>
 class Hand_Impl
 {
@@ -186,13 +184,11 @@ class Three_Of_A_Kind_Hand
   : public Hand_Impl<Three_Of_A_Kind_Hand>
 {
   Rank triple_rank_;
-  Rank second_high_card_;
 
 public:
-  Three_Of_A_Kind_Hand(spc_type const& tc, spc_type const& hc, spc_type const& shc)
-    : triple_rank_(tc->rank_), second_high_card_(shc->rank_)
+  Three_Of_A_Kind_Hand(spc_type const& tc)
+    : triple_rank_(tc->rank_)
   {
-    Hand_Impl<Three_Of_A_Kind_Hand>::high_card_ = hc->rank_;
   }
 
   // Barton-Nackmann
@@ -205,14 +201,6 @@ public:
   bool less_than_impl(Three_Of_A_Kind_Hand const& rhs) const
   {
     if(triple_rank_ < rhs.triple_rank_)
-      return true;
-    else if(triple_rank_ > rhs.triple_rank_)
-      return false;
-    else if(high_card_ < rhs.high_card_)
-      return true;
-    else if(high_card_ > rhs.high_card_)
-      return false;
-    else if(second_high_card_ < rhs.second_high_card_)
       return true;
     else
       return false;
@@ -329,10 +317,9 @@ class Four_Of_A_Kind_Hand
   Rank quad_rank_;
 
 public:
-  Four_Of_A_Kind_Hand(spc_type const& q, spc_type const& h)
+  Four_Of_A_Kind_Hand(spc_type const& q)
     : quad_rank_(q->rank_)
   {
-    Hand_Impl<Four_Of_A_Kind_Hand>::high_card_ = h->rank_;
   }
 
   // Barton-Nackmann
@@ -344,7 +331,7 @@ public:
 
   bool less_than_impl(Four_Of_A_Kind_Hand const& rhs) const
   {
-    return false;
+    quad_rank_ < rhs.quad_rank_;
   }
 
   bool equal_impl(Four_Of_A_Kind_Hand const& rhs) const
