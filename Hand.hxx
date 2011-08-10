@@ -15,12 +15,10 @@
 
 //===========================================================================
 
-template <typename T, typename Traits>
+template <typename T>
 class Hand_Impl
 {
 public:
-  typedef Traits traits_type;
-
   static const unsigned HAND_SIZE = 5;
 
   // Barton-Nackmann trick for output and comparison.
@@ -54,22 +52,11 @@ public:
   Rank high_card_;
 };
 
-
-//===========================================================================
-// Traits class for Hands
-//---------------------------------------------------------------------------
-template <unsigned ID>
-struct Hand_Traits
-{
-  typedef char ORDER[ID];
-};
-
-
 //===========================================================================
 // Basic hand class
 //---------------------------------------------------------------------------
 class Hand
-  : public Hand_Impl<Hand,Hand_Traits<1> >
+  : public Hand_Impl<Hand>
 {
 public:
   std::ostream& write_impl(std::ostream& os) const
@@ -94,7 +81,7 @@ public:
 // Pair Hand Class
 //---------------------------------------------------------------------------
 class Pair_Hand
-  : public Hand_Impl<Pair_Hand,Hand_Traits<2> >
+  : public Hand_Impl<Pair_Hand>
 {
 public:
   // Barton-Nackmann
@@ -157,7 +144,7 @@ public:
 // Two Pair Hand Class
 //---------------------------------------------------------------------------
 class Two_Pair_Hand
-  : public Hand_Impl<Two_Pair_Hand,Hand_Traits<3> >
+  : public Hand_Impl<Two_Pair_Hand>
 {
 
 public:
@@ -217,7 +204,7 @@ public:
 // Three of a Kind Hand Class
 //---------------------------------------------------------------------------
 class Three_Of_A_Kind_Hand
-  : public Hand_Impl<Three_Of_A_Kind_Hand,Hand_Traits<4> >
+  : public Hand_Impl<Three_Of_A_Kind_Hand>
 {
   Rank triple_rank_;
   spc_type triple_card_1_;
@@ -269,7 +256,7 @@ public:
 // Straight Hand Class
 //---------------------------------------------------------------------------
 class Straight_Hand
-  : public Hand_Impl<Straight_Hand,Hand_Traits<5> >
+  : public Hand_Impl<Straight_Hand>
 {
     Rank high_card_in_straight_;
 
@@ -289,7 +276,7 @@ public:
   Straight_Hand(std::vector<spc_type> const& h)
     : high_card_in_straight_(h.back()->rank_)
   {
-    Hand_Impl<Straight_Hand, Hand_Traits<5> >::hand_ = h;
+    Hand_Impl<Straight_Hand>::hand_ = h;
   }
 
   // Barton-Nackmann
@@ -318,7 +305,7 @@ public:
 // Flush Hand Class
 //---------------------------------------------------------------------------
 class Flush_Hand
-  : public Hand_Impl<Flush_Hand,Hand_Traits<6> >
+  : public Hand_Impl<Flush_Hand>
 {
 public:
   Flush_Hand(std::vector<spc_type> const& h) { }
@@ -344,7 +331,7 @@ public:
 //===========================================================================
 // Full House Hand Class
 class Full_House_Hand
-  : public Hand_Impl<Full_House_Hand,Hand_Traits<7> >
+  : public Hand_Impl<Full_House_Hand>
 {
   Rank triple_rank_;
   Rank pair_rank_;
@@ -385,7 +372,7 @@ public:
 // Four of a Kind Hand Class
 //---------------------------------------------------------------------------
 class Four_Of_A_Kind_Hand
-  : public Hand_Impl<Four_Of_A_Kind_Hand,Hand_Traits<8> >
+  : public Hand_Impl<Four_Of_A_Kind_Hand>
 {
   Rank quad_rank_;
 
@@ -393,7 +380,7 @@ public:
   Four_Of_A_Kind_Hand(spc_type const& q, spc_type const& h)
     : quad_rank_(q->rank_)
   {
-    Hand_Impl<Four_Of_A_Kind_Hand, Hand_Traits<8> >::high_card_ = h->rank_;
+    Hand_Impl<Four_Of_A_Kind_Hand>::high_card_ = h->rank_;
   }
 
   // Barton-Nackmann
@@ -419,19 +406,19 @@ public:
 // Straight Flush Hand Class
 //---------------------------------------------------------------------------
 class Straight_Flush_Hand
-  : public Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >
+  : public Hand_Impl<Straight_Flush_Hand>
 {
 
 public:
   explicit Straight_Flush_Hand(spc_type const& c)
   {
-    Hand_Impl<Straight_Flush_Hand, Hand_Traits<9> >::high_card_ = c->rank_;
+    Hand_Impl<Straight_Flush_Hand>::high_card_ = c->rank_;
   }
 
   explicit Straight_Flush_Hand(std::vector<spc_type> const& h) // PAUL
   {
-    Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >::hand_ = h;
-    Hand_Impl<Straight_Flush_Hand,Hand_Traits<9> >::high_card_ = h.back()->rank_;
+    Hand_Impl<Straight_Flush_Hand>::hand_ = h;
+    Hand_Impl<Straight_Flush_Hand>::high_card_ = h.back()->rank_;
   }
 
   // Barton-Nackmann
@@ -451,9 +438,6 @@ public:
     return high_card_ == rhs.high_card_;
   }
 };
-
-
-
 
 
 //===========================================================================
