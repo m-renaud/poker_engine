@@ -9,12 +9,10 @@
 
 #include "Card.hxx"
 #include <vector>
-#include <memory>
 #include <boost/variant.hpp>
 #include <boost/optional.hpp>
 
 //===========================================================================
-
 template <typename T>
 class Hand_Impl
 {
@@ -55,6 +53,10 @@ class Hand
   : public Hand_Impl<Hand>
 {
 public:
+  Hand(std::vector<spc_type> const& h)
+  {
+    Hand_Impl<Hand>::hand_ = h;
+  }
   std::ostream& write_impl(std::ostream& os) const
   {
     os << "Hand";
@@ -63,12 +65,28 @@ public:
 
   bool less_than_impl(Hand const& rhs) const
   {
+    auto i = hand_.rbegin();
+    auto iEnd = hand_.rend();
+    auto rhsi = rhs.hand_.rbegin();
+    for(; i != iEnd; ++i, ++rhsi)
+    {
+      if((*i)->rank_ < (*rhsi)->rank_)
+	return true;
+    }
     return false;
   }
 
   bool equal_impl(Hand const& rhs) const
   {
-    return false;
+    auto i = hand_.rbegin();
+    auto iEnd = hand_.rend();
+    auto rhsi = rhs.hand_.rbegin();
+    for(; i != iEnd; ++i, ++rhsi)
+    {
+      if((*i)->rank_ != (*rhsi)->rank_)
+	return false;
+    }
+    return true;
   }
 };
 
@@ -84,16 +102,21 @@ public:
   Rank second_high_card_;
   Rank third_high_card_;
 
-  Pair_Hand(spc_type const& p, spc_type const& hc,
-	    spc_type const& shc, spc_type const& thc)
-    : pair_rank_(p->rank_), second_high_card_(shc->rank_), third_high_card_(thc->rank_)
+  Pair_Hand(Rank const& pr, Rank const& thc, Rank const& shc, Rank const& hc)
+
+    : pair_rank_(pr), second_high_card_(shc), third_high_card_(thc)
   {
-    Hand_Impl<Pair_Hand>::high_card_ = hc->rank_;
+    Hand_Impl<Pair_Hand>::high_card_ = hc;
   }
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Pair Hand";
+    os << "Pair Hand:" << std::endl
+       << "  Pair Rank: " << pair_rank_ << std::endl
+       << "  High Card: " << high_card_ << std::endl
+       << "  Second High Card : " << second_high_card_ << std::endl
+       << "  Third High Card: " << third_high_card_;
+
     return os;
   }
 
@@ -142,16 +165,19 @@ class Two_Pair_Hand
   Rank high_card_;
 
 public:
-  Two_Pair_Hand(spc_type const& hp, spc_type const& lp, spc_type const& hc)
-    : high_pair_rank_(hp->rank_), low_pair_rank_(lp->rank_)
+  Two_Pair_Hand(Rank const& lpr, Rank const& hpr, Rank const& hc)
+    : low_pair_rank_(lpr), high_pair_rank_(hpr)
   {
-    Hand_Impl<Two_Pair_Hand>::high_card_ = hc->rank_;
+    Hand_Impl<Two_Pair_Hand>::high_card_ = hc;
   }
 
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Two Pair Hand";
+    os << "Two Pair Hand:" << std::endl
+       << "  High Pair Rank: " << high_pair_rank_ << std::endl
+       << "  Low Pair Rank: " << low_pair_rank_ << std::endl
+       << "  High Card: " << high_card_;
     return os;
   }
 
@@ -186,11 +212,10 @@ class Three_Of_A_Kind_Hand
   : public Hand_Impl<Three_Of_A_Kind_Hand>
 {
   Rank triple_rank_;
-  Rank second_high_card_;
 
 public:
-  Three_Of_A_Kind_Hand(spc_type const& tc, spc_type const& hc, spc_type const& shc)
-    : triple_rank_(tc->rank_), second_high_card_(shc->rank_)
+  Three_Of_A_Kind_Hand(Rank tr)
+    : triple_rank_(tr)
   {
     Hand_Impl<Three_Of_A_Kind_Hand>::high_card_ = hc->rank_;
   }
@@ -198,21 +223,14 @@ public:
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Three of a Kind Hand";
+    os << "Three of a Kind Hand:" << std::endl
+       << "  Triple Rank: " << triple_rank_;
     return os;
   }
 
   bool less_than_impl(Three_Of_A_Kind_Hand const& rhs) const
   {
     if(triple_rank_ < rhs.triple_rank_)
-      return true;
-    else if(triple_rank_ > rhs.triple_rank_)
-      return false;
-    else if(high_card_ < rhs.high_card_)
-      return true;
-    else if(high_card_ > rhs.high_card_)
-      return false;
-    else if(second_high_card_ < rhs.second_high_card_)
       return true;
     else
       return false;
@@ -235,15 +253,16 @@ class Straight_Hand
 
 public:
   // Constructor for passing in pointer to the high card.
-  Straight_Hand(spc_type hc)
-    : high_card_in_straight_(hc->rank_)
+  Straight_Hand(Rank const& sr)
+    : high_card_in_straight_(sr)
   {
   }
 
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Straight Hand";
+    os << "Straight Hand:" << std::endl
+       << "  High Card in Straight: " << high_card_in_straight_;
     return os;
   }
 
@@ -266,23 +285,48 @@ class Flush_Hand
   : public Hand_Impl<Flush_Hand>
 {
 public:
-  Flush_Hand(std::vector<spc_type> const& h) { }
+  Flush_Hand(std::vector<spc_type> const& h)
+  {
+    Hand_Impl<Flush_Hand>::hand_ = h;
+  }
 
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Flush Hand";
+    os << "Flush Hand:" << std::endl
+       << "  Ranks: ";
+    for_each(hand_.begin(), hand_.end(),
+	     [&os](spc_type const& c)
+	     {
+	       os << c->rank_ << " ";
+	     });
     return os;
   }
 
   bool less_than_impl(Flush_Hand const& rhs) const
   {
+    auto i = hand_.rbegin();
+    auto iEnd = hand_.rend();
+    auto rhsi = rhs.hand_.rbegin();
+    for(; i != iEnd; ++i, ++rhsi)
+    {
+      if((*i)->rank_ < (*rhsi)->rank_)
+	return true;
+    }
     return false;
   }
 
   bool equal_impl(Flush_Hand const& rhs) const
   {
-    return false;
+    auto i = hand_.rbegin();
+    auto iEnd = hand_.rend();
+    auto rhsi = rhs.hand_.rbegin();
+    for(; i != iEnd; ++i, ++rhsi)
+    {
+      if((*i)->rank_ != (*rhsi)->rank_)
+	return false;
+    }
+    return true;
   }
 };
 
@@ -296,15 +340,17 @@ class Full_House_Hand
 
 public:
   // Constructor for passing in two shared pointers to cards.
-  Full_House_Hand(spc_type tc, spc_type pc)
-    : triple_rank_(tc->rank_), pair_rank_(pc->rank_)
+  Full_House_Hand(Rank const& tr, Rank const& pr)
+    : triple_rank_(tr), pair_rank_(pr)
   {
   }
 
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Full House Hand";
+    os << "Full House Hand" << std::endl
+       << "  Triple Rank: " << triple_rank_ << std::endl
+       << "  Pair Rank: " << pair_rank_;
     return os;
   }
 
@@ -329,22 +375,22 @@ class Four_Of_A_Kind_Hand
   Rank quad_rank_;
 
 public:
-  Four_Of_A_Kind_Hand(spc_type const& q, spc_type const& h)
-    : quad_rank_(q->rank_)
+  Four_Of_A_Kind_Hand(Rank const& r)
+    : quad_rank_(r)
   {
-    Hand_Impl<Four_Of_A_Kind_Hand>::high_card_ = h->rank_;
   }
 
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Four of a Kind Hand";
+    os << "Four of a Kind Hand" << std::endl
+       << "  Quad Rank: " << quad_rank_;
     return os;
   }
 
   bool less_than_impl(Four_Of_A_Kind_Hand const& rhs) const
   {
-    return false;
+    quad_rank_ < rhs.quad_rank_;
   }
 
   bool equal_impl(Four_Of_A_Kind_Hand const& rhs) const
@@ -362,9 +408,9 @@ class Straight_Flush_Hand
 {
 
 public:
-  explicit Straight_Flush_Hand(spc_type const& c)
+  explicit Straight_Flush_Hand(Rank const& hr)
   {
-    Hand_Impl<Straight_Flush_Hand>::high_card_ = c->rank_;
+    Hand_Impl<Straight_Flush_Hand>::high_card_ = hr;
   }
 
   explicit Straight_Flush_Hand(std::vector<spc_type> const& h)
@@ -376,7 +422,8 @@ public:
   // Barton-Nackmann
   std::ostream& write_impl(std::ostream& os) const
   {
-    os << "Straight Flush Hand";
+    os << "Straight Flush Hand" << std::endl
+       << "  High card in straight: " << high_card_;
     return os;
   }
 

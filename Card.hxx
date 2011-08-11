@@ -13,8 +13,8 @@
 
 
 enum Suit { SPADES = 0, HEARTS, DIAMONDS, CLUBS, JOKER };
-enum Rank { ACE = 1, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE
-	    , TEN, JACK, QUEEN, KING };
+enum Rank { TWO = 2, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
+	    TEN, JACK, QUEEN, KING, ACE };
 
 class Card
 {
@@ -99,5 +99,32 @@ std::ostream& operator << (std::ostream& os, spc_type const& c)
   c->showCard(os);
   return os;
 }
+
+//===========================================================================
+struct sort_ordinal_suit
+{
+  bool operator ()(spc_type const& c1, spc_type const& c2) const
+  {
+    if(c1->rank_ < c2->rank_)
+      return true;
+    else if(c1->rank_ == c2->rank_)
+      return c1->suit_ < c2->suit_;
+    else
+      return false;
+  }
+};
+
+struct sort_suit_ordinal
+{
+  bool operator ()(spc_type const& c1, spc_type const& c2) const
+  {
+    if(c1->suit_ < c2->suit_)
+      return true;
+    else if(c1->suit_ == c2->suit_)
+      return c1->rank_ < c2->rank_;
+    else
+      return false;
+  }
+};
 
 #endif // __MRR_CARD_HXX__
