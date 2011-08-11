@@ -55,14 +55,15 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
 	     rev_suit_hist.insert(make_pair(i.second, REV_SUIT_HIST::mapped_type())).first->second.insert(i.first);
 	   });
 
+  auto rsh_end = rev_suit_hist.end();
+  auto rrh_end = rev_rank_hist.end();
+
   // Check whether the hand is a straight or flush.
-  bool is_flush = rev_suit_hist.find(5) != rev_suit_hist.end();
+  bool is_flush = rev_suit_hist.find(5) != rsh_end;
   bool is_straight = isStraight(hand);
 
   if(is_straight && is_flush)
-  {
     return Straight_Flush_Hand(hand.back()->rank_);
-  }
 
   if(is_straight)
     return Straight_Hand(hand.back()->rank_);
@@ -70,35 +71,30 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
   if(is_flush)
     return Flush_Hand(hand);
 
-  // Check if there is four of a kind.
   auto foak_iter = rev_rank_hist.find(4);
-  if(foak_iter != rev_rank_hist.end())
-    return Four_Of_A_Kind_Hand(*(foak_iter->second.begin()));
-
-  // Check if there is tree of a kind.
   auto toak_iter = rev_rank_hist.find(3);
-
-  // Check if there is a pair.
   auto pair_iter = rev_rank_hist.find(2);
 
-  if(toak_iter != rev_rank_hist.end() && pair_iter != rev_rank_hist.end())
+  if(foak_iter != rrh_end)
+    return Four_Of_A_Kind_Hand(*(foak_iter->second.begin()));
+
+  if(toak_iter != rrh_end && pair_iter != rrh_end)
     return Full_House_Hand(*(toak_iter->second.begin()), *(pair_iter->second.begin()));
 
-  if(pair_iter != rev_rank_hist.end())
+  if(pair_iter != rrh_end)
     if(pair_iter->second.size() == 2)
       return Two_Pair_Hand(*(pair_iter->second.begin()),
 			   *(++pair_iter->second.begin()),
 			   *(rev_rank_hist[1].begin()));
 
-  if(toak_iter != rev_rank_hist.end())
+  if(toak_iter != rrh_end)
     return Three_Of_A_Kind_Hand(*(toak_iter->second.begin()));
 
-  if(pair_iter != rev_rank_hist.end())
+  if(pair_iter != rrh_end)
     return Pair_Hand(*(pair_iter->second.begin()),
 		     *(rev_rank_hist[1].begin()),
 		     *(++rev_rank_hist[1].begin()),
 		     *(++ ++rev_rank_hist[1].begin()));
-
 
   return Hand(hand);
 }

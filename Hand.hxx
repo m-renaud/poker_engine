@@ -217,7 +217,6 @@ public:
   Three_Of_A_Kind_Hand(Rank tr)
     : triple_rank_(tr)
   {
-    Hand_Impl<Three_Of_A_Kind_Hand>::high_card_ = hc->rank_;
   }
 
   // Barton-Nackmann
