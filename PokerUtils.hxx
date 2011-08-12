@@ -11,7 +11,6 @@
 #include "Hand.hxx"
 
 Ranked_Hand rankHand(std::vector<spc_type> hand);
-
 bool isStraight(std::vector<spc_type> hand);
 
 typedef std::map<Rank, unsigned> RANK_HIST;
@@ -63,10 +62,10 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
   bool is_straight = isStraight(hand);
 
   if(is_straight && is_flush)
-    return Straight_Flush_Hand(hand.back()->rank_);
+    return Straight_Flush_Hand(hand);
 
   if(is_straight)
-    return Straight_Hand(hand.back()->rank_);
+    return Straight_Hand(hand);
 
   if(is_flush)
     return Flush_Hand(hand);
@@ -76,25 +75,29 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
   auto pair_iter = rev_rank_hist.find(2);
 
   if(foak_iter != rrh_end)
-    return Four_Of_A_Kind_Hand(*(foak_iter->second.begin()));
+    return Four_Of_A_Kind_Hand(*(foak_iter->second.begin()), hand);
 
   if(toak_iter != rrh_end && pair_iter != rrh_end)
-    return Full_House_Hand(*(toak_iter->second.begin()), *(pair_iter->second.begin()));
+    return Full_House_Hand(*(toak_iter->second.begin()),
+			   *(pair_iter->second.begin()),
+			   hand);
 
   if(pair_iter != rrh_end)
     if(pair_iter->second.size() == 2)
       return Two_Pair_Hand(*(pair_iter->second.begin()),
 			   *(++pair_iter->second.begin()),
-			   *(rev_rank_hist[1].begin()));
+			   *(rev_rank_hist[1].begin()),
+			   hand);
 
   if(toak_iter != rrh_end)
-    return Three_Of_A_Kind_Hand(*(toak_iter->second.begin()));
+    return Three_Of_A_Kind_Hand(*(toak_iter->second.begin()), hand);
 
   if(pair_iter != rrh_end)
     return Pair_Hand(*(pair_iter->second.begin()),
 		     *(rev_rank_hist[1].begin()),
 		     *(++rev_rank_hist[1].begin()),
-		     *(++ ++rev_rank_hist[1].begin()));
+		     *(++ ++rev_rank_hist[1].begin()),
+		     hand);
 
   return Hand(hand);
 }

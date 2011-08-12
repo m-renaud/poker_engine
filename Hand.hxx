@@ -102,10 +102,12 @@ public:
   Rank second_high_card_;
   Rank third_high_card_;
 
-  Pair_Hand(Rank const& pr, Rank const& thc, Rank const& shc, Rank const& hc)
+  Pair_Hand(Rank const& pr, Rank const& thc, Rank const& shc, Rank const& hc,
+	    std::vector<spc_type> const& h)
 
     : pair_rank_(pr), second_high_card_(shc), third_high_card_(thc)
   {
+    Hand_Impl<Pair_Hand>::hand_ = h;
     Hand_Impl<Pair_Hand>::high_card_ = hc;
   }
   // Barton-Nackmann
@@ -162,13 +164,14 @@ class Two_Pair_Hand
 {
   Rank high_pair_rank_;
   Rank low_pair_rank_;
-  Rank high_card_;
 
 public:
-  Two_Pair_Hand(Rank const& lpr, Rank const& hpr, Rank const& hc)
+  Two_Pair_Hand(Rank const& lpr, Rank const& hpr, Rank const& hc,
+		std::vector<spc_type> const& h)
     : low_pair_rank_(lpr), high_pair_rank_(hpr)
   {
     Hand_Impl<Two_Pair_Hand>::high_card_ = hc;
+    Hand_Impl<Two_Pair_Hand>::hand_ = h;
   }
 
   // Barton-Nackmann
@@ -214,9 +217,10 @@ class Three_Of_A_Kind_Hand
   Rank triple_rank_;
 
 public:
-  Three_Of_A_Kind_Hand(Rank tr)
+  Three_Of_A_Kind_Hand(Rank tr, std::vector<spc_type> const& h)
     : triple_rank_(tr)
   {
+    Hand_Impl<Three_Of_A_Kind_Hand>::hand_ = h;
   }
 
   // Barton-Nackmann
@@ -252,9 +256,10 @@ class Straight_Hand
 
 public:
   // Constructor for passing in pointer to the high card.
-  Straight_Hand(Rank const& sr)
-    : high_card_in_straight_(sr)
+  Straight_Hand(std::vector<spc_type> const& h)
   {
+    Hand_Impl<Straight_Hand>::high_card_ = h.back()->rank_;
+    Hand_Impl<Straight_Hand>::hand_ = h;
   }
 
   // Barton-Nackmann
@@ -339,9 +344,10 @@ class Full_House_Hand
 
 public:
   // Constructor for passing in two shared pointers to cards.
-  Full_House_Hand(Rank const& tr, Rank const& pr)
+  Full_House_Hand(Rank const& tr, Rank const& pr, std::vector<spc_type> const& h)
     : triple_rank_(tr), pair_rank_(pr)
   {
+    Hand_Impl<Full_House_Hand>::hand_ = h;
   }
 
   // Barton-Nackmann
@@ -374,9 +380,10 @@ class Four_Of_A_Kind_Hand
   Rank quad_rank_;
 
 public:
-  Four_Of_A_Kind_Hand(Rank const& r)
+  Four_Of_A_Kind_Hand(Rank const& r, std::vector<spc_type> const& h)
     : quad_rank_(r)
   {
+    Hand_Impl<Four_Of_A_Kind_Hand>::hand_ = h;
   }
 
   // Barton-Nackmann
@@ -407,11 +414,6 @@ class Straight_Flush_Hand
 {
 
 public:
-  explicit Straight_Flush_Hand(Rank const& hr)
-  {
-    Hand_Impl<Straight_Flush_Hand>::high_card_ = hr;
-  }
-
   explicit Straight_Flush_Hand(std::vector<spc_type> const& h)
   {
     Hand_Impl<Straight_Flush_Hand>::hand_ = h;

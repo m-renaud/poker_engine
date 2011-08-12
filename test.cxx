@@ -60,7 +60,7 @@ int main()
   for_each(h3.begin(), h3.end(), [](spc_type c) { std::cout << c << std::endl; } );
 #endif
 
-  std::vector<spc_type> h4{s_10, s_7, s_5, s_6, s_8};
+  std::vector<spc_type> h4{s_10, h_10, s_9, h_6, s_6};
   Ranked_Hand rh4 = rankHand(h4);
   std::cout << rh4 << std::endl;
 
