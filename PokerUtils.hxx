@@ -74,6 +74,22 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
   auto toak_iter = rev_rank_hist.find(3);
   auto pair_iter = rev_rank_hist.find(2);
 
+#if 0 // Good practice for finding in a histogram.
+  auto toak_iter = pair_iter != rrh_end ? ++REV_RANK_HIST::iterator(pair_iter) : rrh_end;
+  auto foak_iter = toak_iter != rrh_end ? ++REV_RANK_HIST::iterator(toak_iter) : rrh_end;
+
+  // look for a 3 or 4 or set to end if not...
+  if (toak_iter != rrh_end && toak_iter->first == 4)
+  {
+    foak_iter = toak_iter;
+    toak_iter = rrh_end;
+  } else if (toak_iter != rrh_end && toak_iter != 3)
+    toak_iter = foak_iter = rrh_end;
+  else if (foak_iter != rrh_end && foak_iter != 4)
+    foak_iter = rrh_end;
+#endif
+
+
   if(foak_iter != rrh_end)
     return Four_Of_A_Kind_Hand(*(foak_iter->second.begin()), hand);
 
