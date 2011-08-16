@@ -38,6 +38,7 @@ typedef std::shared_ptr<Card> card_type;
 typedef std::vector<card_type> hand_type;
 typedef hand_type::iterator hand_iter_type;
 typedef std::vector<Ranked_Hand> ranked_hand_type;
+typedef std::vector<hand_type> hand_collection_type;
 typedef std::array<card_type, CARDS_IN_DECK> deck_type;
 
 

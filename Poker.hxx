@@ -22,7 +22,7 @@ template <unsigned Players>
 class Poker
 {
   Deck *deck;
-  std::vector<hand_type> hand;
+  hand_collection_type hand;
   ranked_hand_type rankedHand;
 
 public:
@@ -63,8 +63,6 @@ public:
 	std::sort(h.begin(), h.end(), sort_ordinal_suit());
     }
   }
-
-
 };
 
 
