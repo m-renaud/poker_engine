@@ -11,6 +11,7 @@
 #include <string>
 #include <memory>
 
+#include "Traits.hxx"
 
 enum Suit { SPADES = 0, HEARTS, DIAMONDS, CLUBS, JOKER };
 enum Rank { TWO = 2, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
@@ -82,19 +83,17 @@ public:
   }
 };
 
-typedef std::shared_ptr<Card> spc_type;
-
-bool operator < (spc_type const& lhs, spc_type const& rhs)
+bool operator < (card_type const& lhs, card_type const& rhs)
 {
   return (lhs->rank_ < rhs->rank_);
 }
 
-bool operator == (spc_type const& lhs, spc_type const& rhs)
+bool operator == (card_type const& lhs, card_type const& rhs)
 {
   return (lhs->rank_ == rhs->rank_);
 }
 
-std::ostream& operator << (std::ostream& os, spc_type const& c)
+std::ostream& operator << (std::ostream& os, card_type const& c)
 {
   c->showCard(os);
   return os;
@@ -103,7 +102,7 @@ std::ostream& operator << (std::ostream& os, spc_type const& c)
 //===========================================================================
 struct sort_ordinal_suit
 {
-  bool operator ()(spc_type const& c1, spc_type const& c2) const
+  bool operator ()(card_type const& c1, card_type const& c2) const
   {
     if(c1->rank_ < c2->rank_)
       return true;
@@ -116,7 +115,7 @@ struct sort_ordinal_suit
 
 struct sort_suit_ordinal
 {
-  bool operator ()(spc_type const& c1, spc_type const& c2) const
+  bool operator ()(card_type const& c1, card_type const& c2) const
   {
     if(c1->suit_ < c2->suit_)
       return true;

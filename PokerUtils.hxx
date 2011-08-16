@@ -3,15 +3,15 @@
 
 #include <vector>
 #include <algorithm>
-#include <iterator>
 #include <map>
 #include <set>
 
 #include "Card.hxx"
 #include "Hand.hxx"
+#include "Traits.hxx"
 
-Ranked_Hand rankHand(std::vector<spc_type> hand);
-bool isStraight(std::vector<spc_type> hand);
+Ranked_Hand rankHand(hand_type hand);
+bool isStraight(hand_type hand);
 
 typedef std::map<Rank, unsigned> RANK_HIST;
 typedef std::map<RANK_HIST::mapped_type, std::set<RANK_HIST::key_type> > REV_RANK_HIST;
@@ -21,7 +21,7 @@ typedef std::map<SUIT_HIST::mapped_type, std::set<SUIT_HIST::key_type> > REV_SUI
 
 
 //===========================================================================
-Ranked_Hand rankHand(std::vector<spc_type> hand)
+Ranked_Hand rankHand(hand_type hand)
 {
   std::sort(hand.begin(), hand.end());
 
@@ -29,8 +29,8 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
   RANK_HIST rank_hist;
   SUIT_HIST suit_hist;
   {
-    std::vector<spc_type>::iterator i = hand.begin();
-    std::vector<spc_type>::iterator iEnd = hand.end();
+    hand_iter_type i = hand.begin();
+    hand_iter_type iEnd = hand.end();
     for(; i != iEnd; ++i)
     {
       ++rank_hist[(*i)->rank_];
@@ -119,7 +119,7 @@ Ranked_Hand rankHand(std::vector<spc_type> hand)
 }
 
 //===========================================================================
-bool isStraight(std::vector<spc_type> hand)
+bool isStraight(hand_type hand)
 {
   int r = static_cast<int>(hand.front()->rank_);
   for(int i = 1; i < hand.size(); ++i)

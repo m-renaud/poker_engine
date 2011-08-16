@@ -6,14 +6,8 @@
 
 #include "Card.hxx"
 
-template <typename Traits = HandTraits<spc_type> >
 class Deck
 {
-
-  typedef typename Traits::card_type card_type;
-  typedef typename Traits::hand_type hand_type;
-
-
 protected:
   // Some card deck constants.
   static const int CARDS_IN_DECK = 52;

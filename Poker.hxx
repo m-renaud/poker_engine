@@ -5,8 +5,7 @@
 #include "Hand.hxx"
 #include "Deck.hxx"
 #include "PokerUtils.hxx"
-
-typedef std::vector<spc_type> hand_type;
+#include "Traits.hxx"
 
 enum SORT_CRITERIA {SUIT = 0, RANK = 1};
 
@@ -22,9 +21,9 @@ std::ostream& operator << (std::ostream& os, hand_type const& h)
 template <unsigned Players>
 class Poker
 {
-  Deck<HandTraits<spc_type> > *deck;
+  Deck *deck;
   std::vector<hand_type> hand;
-  std::vector<Ranked_Hand> rankedHand;
+  ranked_hand_type rankedHand;
 
 public:
   Poker()

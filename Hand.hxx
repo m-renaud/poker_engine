@@ -15,21 +15,19 @@
 #include "PokerTraits.hxx"
 
 //===========================================================================
-template <typename T, typename Traits = HandTraits<spc_type> >
+template <typename T>
 class Hand_Impl
 {
 public:
 
-  typedef Traits traits_type;
-
-  typename traits_type::hand_type hand_;
+  hand_type hand_;
   Rank high_card_;
 
   explicit Hand_Impl()
   {
   }
 
-  explicit Hand_Impl(typename traits_type::hand_type const& h)
+  explicit Hand_Impl(hand_type const& h)
     : hand_(h), high_card_(h.front()->rank_)
   {
   }
@@ -58,7 +56,7 @@ class Hand
   : public Hand_Impl<Hand>
 {
 public:
-  Hand(typename traits_type::hand_type const& h)
+  Hand(hand_type const& h)
   {
     Hand_Impl<Hand>::hand_ = h;
   }
@@ -108,7 +106,7 @@ public:
   Rank third_high_card_;
 
   Pair_Hand(Rank const& pr, Rank const& thc, Rank const& shc, Rank const& hc,
-	    typename traits_type::hand_type const& h)
+	    hand_type const& h)
 
     : pair_rank_(pr), second_high_card_(shc), third_high_card_(thc)
   {
@@ -172,7 +170,7 @@ class Two_Pair_Hand
 
 public:
   Two_Pair_Hand(Rank const& lpr, Rank const& hpr, Rank const& hc,
-		typename traits_type::hand_type const& h)
+		hand_type const& h)
     : low_pair_rank_(lpr), high_pair_rank_(hpr)
   {
     Hand_Impl<Two_Pair_Hand>::high_card_ = hc;
@@ -222,7 +220,7 @@ class Three_Of_A_Kind_Hand
   Rank triple_rank_;
 
 public:
-  Three_Of_A_Kind_Hand(Rank tr, typename traits_type::hand_type const& h)
+  Three_Of_A_Kind_Hand(Rank tr, hand_type const& h)
     : triple_rank_(tr)
   {
     Hand_Impl<Three_Of_A_Kind_Hand>::hand_ = h;
@@ -261,7 +259,7 @@ class Straight_Hand
 
 public:
   // Constructor for passing in pointer to the high card.
-  Straight_Hand(typename traits_type::hand_type const& h)
+  Straight_Hand(hand_type const& h)
   {
     Hand_Impl<Straight_Hand>::high_card_ = h.back()->rank_;
     Hand_Impl<Straight_Hand>::hand_ = h;
@@ -295,7 +293,7 @@ class Flush_Hand
 {
 
 public:
-  Flush_Hand(typename traits_type::hand_type const& h)
+  Flush_Hand(hand_type const& h)
   {
     Hand_Impl<Flush_Hand>::hand_ = h;
   }
@@ -306,7 +304,7 @@ public:
     os << "Flush Hand:" << std::endl
        << "  Ranks: ";
     for_each(hand_.begin(), hand_.end(),
-	     [&os](typename traits_type::card_type const& c)
+	     [&os](card_type const& c)
 	     {
 	       os << c->rank_ << " ";
 	     });
@@ -350,7 +348,7 @@ class Full_House_Hand
 
 public:
   // Constructor for passing in two shared pointers to cards.
-  Full_House_Hand(Rank const& tr, Rank const& pr, typename traits_type::hand_type const& h)
+  Full_House_Hand(Rank const& tr, Rank const& pr, hand_type const& h)
     : triple_rank_(tr), pair_rank_(pr)
   {
     Hand_Impl<Full_House_Hand>::hand_ = h;
@@ -386,7 +384,7 @@ class Four_Of_A_Kind_Hand
   Rank quad_rank_;
 
 public:
-  Four_Of_A_Kind_Hand(Rank const& r, typename traits_type::hand_type const& h)
+  Four_Of_A_Kind_Hand(Rank const& r, hand_type const& h)
     : quad_rank_(r)
   {
     Hand_Impl<Four_Of_A_Kind_Hand>::hand_ = h;
@@ -420,7 +418,7 @@ class Straight_Flush_Hand
 {
 
 public:
-  explicit Straight_Flush_Hand(typename traits_type::hand_type const& h)
+  explicit Straight_Flush_Hand(hand_type const& h)
   {
     Hand_Impl<Straight_Flush_Hand>::hand_ = h;
     Hand_Impl<Straight_Flush_Hand>::high_card_ = h.back()->rank_;
