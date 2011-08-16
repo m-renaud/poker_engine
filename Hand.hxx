@@ -7,12 +7,11 @@
 // Assistance from Paul Preney and Bryan St. Amour
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include <algorithm>
 #include <boost/variant.hpp>
-#include <boost/optional.hpp>
 
 #include "Card.hxx"
-#include "PokerTraits.hxx"
+#include "Traits.hxx"
 
 //===========================================================================
 template <typename T>

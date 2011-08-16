@@ -9,7 +9,6 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <memory>
 
 #include "Traits.hxx"
 

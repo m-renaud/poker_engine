@@ -2,20 +2,14 @@
 #include <algorithm>
 #include <tr1/random>
 #include <ctime>
-#include <array>
 
 #include "Card.hxx"
 
 class Deck
 {
 protected:
-  // Some card deck constants.
-  static const int CARDS_IN_DECK = 52;
-  static const int SUITS_IN_DECK = 4;
-  static const int CARDS_IN_SUIT = 13;
-
   unsigned positionInDeck;
-  std::array<card_type,CARDS_IN_DECK> deck;
+  deck_type deck;
 
 public:
   Deck() : positionInDeck(0)  // Deck constructor.
@@ -36,16 +30,6 @@ public:
 
   void showDeck()
   {
-    // for_each using lambda function.
-    /*
-      for_each(
-      deck, deck+CARDS_IN_DECK,
-      [](card_type& c) { if (c) c->showCard(); cout << endl; }
-//	 [](auto c) { if (c) c->showCard(); cout << endl; }
-);
-    */
-
-    // Range based for loop.
     for(card_type &c: deck)
     {
       std::cout << c;
@@ -84,7 +68,7 @@ public:
   template <unsigned N>
   hand_type dealHand ()
   {
-    std::vector<card_type> hand;
+    hand_type hand;
     for(unsigned i = 0; i < N; ++i)
     {
       hand.push_back(dealTopCard());
