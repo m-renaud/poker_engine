@@ -2,12 +2,18 @@
 #include <algorithm>
 #include <tr1/random>
 #include <ctime>
-#include "Card.hxx"
 #include <array>
 
+#include "Card.hxx"
 
+template <typename Traits = HandTraits<spc_type> >
 class Deck
 {
+
+  typedef typename Traits::card_type card_type;
+  typedef typename Traits::hand_type hand_type;
+
+
 protected:
   // Some card deck constants.
   static const int CARDS_IN_DECK = 52;
@@ -15,7 +21,7 @@ protected:
   static const int CARDS_IN_SUIT = 13;
 
   unsigned positionInDeck;
-  std::array<spc_type,CARDS_IN_DECK> deck;
+  std::array<card_type,CARDS_IN_DECK> deck;
 
 public:
   Deck() : positionInDeck(0)  // Deck constructor.
@@ -24,7 +30,7 @@ public:
     for(unsigned s = 0; s < 4; ++s)
       for(unsigned r = 2; r <= 14; ++r)
       {
-	deck[c++] = spc_type (new Card(Rank(r), Suit(s)));
+	deck[c++] = card_type (new Card(Rank(r), Suit(s)));
 	//deck[c].reset();
       }
   }
@@ -40,13 +46,13 @@ public:
     /*
       for_each(
       deck, deck+CARDS_IN_DECK,
-      [](spc_type& c) { if (c) c->showCard(); cout << endl; }
+      [](card_type& c) { if (c) c->showCard(); cout << endl; }
 //	 [](auto c) { if (c) c->showCard(); cout << endl; }
 );
     */
 
     // Range based for loop.
-    for(spc_type &c: deck)
+    for(card_type &c: deck)
     {
       std::cout << c;
       std::cout << std::endl;
@@ -67,13 +73,13 @@ public:
     for(unsigned i = 0; i < CARDS_IN_DECK; ++i)
     {
       pos = rnd();
-      spc_type c = deck[pos];
+      card_type c = deck[pos];
       deck[pos] = deck[i];
       deck[i] = c;
     }
   }
 
-  spc_type dealTopCard()
+  card_type dealTopCard()
   {
     if(positionInDeck < CARDS_IN_DECK)
       return deck[positionInDeck++];
@@ -82,9 +88,9 @@ public:
   }
 
   template <unsigned N>
-  std::vector<spc_type> dealHand ()
+  hand_type dealHand ()
   {
-    std::vector<spc_type> hand;
+    std::vector<card_type> hand;
     for(unsigned i = 0; i < N; ++i)
     {
       hand.push_back(dealTopCard());

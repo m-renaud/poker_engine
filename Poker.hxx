@@ -6,11 +6,11 @@
 #include "Deck.hxx"
 #include "PokerUtils.hxx"
 
-typedef std::vector<spc_type> HAND;
+typedef std::vector<spc_type> hand_type;
 
 enum SORT_CRITERIA {SUIT = 0, RANK = 1};
 
-std::ostream& operator << (std::ostream& os, HAND const& h)
+std::ostream& operator << (std::ostream& os, hand_type const& h)
 {
   for(auto &c: h)
     os << c << " - ";
@@ -22,8 +22,8 @@ std::ostream& operator << (std::ostream& os, HAND const& h)
 template <unsigned Players>
 class Poker
 {
-  Deck *deck;
-  std::vector<HAND> hand;
+  Deck<HandTraits<spc_type> > *deck;
+  std::vector<hand_type> hand;
   std::vector<Ranked_Hand> rankedHand;
 
 public:
