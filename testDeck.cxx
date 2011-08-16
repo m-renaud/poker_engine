@@ -4,9 +4,7 @@
 #include "Hand.hxx"
 #include "Deck.hxx"
 #include "PokerUtils.hxx"
-
-
-typedef std::vector<spc_type> hand;
+#include "Traits.hxx"
 
 int main()
 {
